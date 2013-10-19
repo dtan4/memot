@@ -1,6 +1,7 @@
 require "dropbox_sdk"
 require "yaml"
 require "memot/evernote"
+require "memot/markdown"
 
 module Memot
   class Dropbox
@@ -25,8 +26,7 @@ module Memot
           end
         else
           if cont["revision"] > @config["revision"]
-            # save_to_evernote(path) if path =~ /\.(?:md|markdown)$/
-            puts path if path =~ /\.(?:md|markdown)$/
+            save_to_evernote(path) if %w{.md .markdown}.include? File.extname(path).downcase
             latest_revision = cont["revision"] if cont["revision"] > latest_revision
           end
         end
@@ -36,9 +36,9 @@ module Memot
     end
 
     def save_to_evernote(path)
-      body = get_file_body(path)
+      body = Memot::Markdown.parse_markdown(get_file_body(path))
       title = File.basename(path)
-      notebook = Fild.dirname(path).sub(/^#{root}\//, "")
+      notebook = File.dirname(path).sub(/^#{root}\/?/, "")
 
       if (note_guid = @evernote.get_note_guid(title, notebook)) == ""
         @evernote.create_note(title, body, notebook)
