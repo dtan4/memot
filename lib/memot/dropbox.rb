@@ -75,7 +75,6 @@ module Memot
       print "PIN code: "
       code = gets.strip
       access_token, user_id = flow.finish(code)
-      access_token, user_id
     end
   end
 end

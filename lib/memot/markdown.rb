@@ -1,4 +1,4 @@
-rrequire "redcarpet"
+require "redcarpet"
 
 module Memot
   class Markdown
