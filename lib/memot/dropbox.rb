@@ -9,7 +9,7 @@ module Memot
       @evernote = evernote
     end
 
-    def parse_dir_tree(path, notebook, recursive)
+    def parse_dir_tree(path, notebook, recursive = false)
       latest_revision = get_latest_revision(path)
       refreshed_latest_revision = latest_revision
 
