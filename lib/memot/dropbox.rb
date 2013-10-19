@@ -12,7 +12,7 @@ module Memot
     end
 
     def parse_dir_tree(path, notebook, recursive = false)
-      latest_revision = get_latest_revision(path)
+      latest_revision = get_revision(path)
       refreshed_latest_revision = latest_revision
 
       @client.metadata(path)["contents"].each do |cont|
@@ -31,7 +31,7 @@ module Memot
         end
       end
 
-      set_latest_revision(path, refreshed_latest_revision)
+      set_revision(path, refreshed_latest_revision)
     end
 
     def self.auth(app_key, app_secret)
@@ -62,11 +62,11 @@ module Memot
       File.expand_path(REVISION_FILENAME, dir)
     end
 
-    def get_latest_revision(dir)
+    def get_revision(dir)
       file_exists?(dir, REVISION_FILENAME) ? get_file_body(revision_path(dir)).strip.to_i : 0
     end
 
-    def set_latest_revision(dir, revision)
+    def set_revision(dir, revision)
       @client.put_file(revision_path(dir), revision, true)
     end
 
