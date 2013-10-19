@@ -1,4 +1,5 @@
 require "evernote_oauth"
+require "pry"
 
 module Memot
   class EvernoteCli
@@ -20,7 +21,7 @@ module Memot
     end
 
     def update_note(title, body, notebook, note_guid)
-      note = @note_store.getNote(@token, note_guid)
+      note = @note_store.getNote(@token, note_guid, true, true, true, true)
       note.title = title.force_encoding("UTF-8")
       note.content = create_note_content(body).force_encoding("UTF-8")
       note.notebookGuid = get_notebook_guid(notebook, false)
@@ -37,6 +38,7 @@ module Memot
       filter = Evernote::EDAM::NoteStore::NoteFilter.new
       filter.notebookGuid = notebook_guid
       spec = Evernote::EDAM::NoteStore::NotesMetadataResultSpec.new
+      spec.includeTitle = true
       results = @note_store.findNotesMetadata(@token, filter, 0, 10000, spec).notes.select { |nt| nt.title == title }
       results.length > 0 ? results.first.guid : ""
 
