@@ -55,27 +55,19 @@ module Memot
       open(filepath, "w+") { |f| f.puts body } unless filepath == ""
     end
 
-    def auth
-      flow = DropboxOAuth2FlowNoRedirect.new(DROPBOX_APP_KEY, DROPBOX_APP_SECRET)
-      puts "Access to this URL: #{flow.start}"
-      code = gets.strip
-      access_token, user_id = flow.finish(code)
-      @config = {
-        auth: {
-          access_token: access_token,
-          user_id: user_id
-        },
-        revision: 0
-      }
-      open(MEMO2GIT_CONF, "w+") { |f| f.write @config.to_yaml }
-      puts "Save authorization data to #{MEMO2GIT_CONF}"
-      @config[:auth]
-    end
-
     def refresh_revision(revision)
       @config["revision"] = revision
       open(MEMO2GIT_CONF, "w+") { |f| f.write @config.to_yaml }
       puts "latest revision is #{@config["revision"]}"
+    end
+
+    def self.auth(app_key, app_secret)
+      flow = DropboxOAuth2FlowNoRedirect.new(app_key, app_seccret)
+      puts "Access to this URL: #{flow.start}"
+      print "PIN code: "
+      code = gets.strip
+      access_token, user_id = flow.finish(code)
+      access_token, user_id
     end
   end
 end
