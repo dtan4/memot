@@ -1,5 +1,19 @@
 #!/usr/bin/env ruby
 
 require "memot"
+require "yaml"
 
 CONF_PATH = ENV["HOME"] + "/.memot.yml"
+
+unless File.exists? CONF_PATH
+  $stderr.puts "#{CONF_PATH} is not found"
+  exit 1
+end
+
+config = YAML.load_file(CONF_PATH)
+auth = config["auth"]
+notes = config["notes"]
+evernote = Memot::EvernoteCli.new(auth["evernote"]["token"], auth["evernote"]["sandbox"])
+dropbox = Memot::DropboxCli.new(auth["dropbox"]["access_token"], evernote)
+
+notes.each_pair { |name, path| dropbox.parse_dir_tree(path, name) }
