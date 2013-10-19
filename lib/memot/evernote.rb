@@ -1,5 +1,4 @@
 require "evernote_oauth"
-require "pry"
 
 module Memot
   class EvernoteCli
