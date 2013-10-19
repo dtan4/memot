@@ -10,8 +10,8 @@ module Memot
 
     def create_note(title, body, notebook)
       note = Evernote::EDAM::Type::Note.new
-      note.title = title
-      note.content = create_note_content(body)
+      note.title = title.force_encoding("UTF-8")
+      note.content = create_note_content(body).force_encoding("UTF-8")
       note.notebookGuid = get_notebook_guid(notebook)
 
       begin
@@ -26,8 +26,8 @@ module Memot
 
     def update_note(title, body, notebook, note_guid)
       note = @note_store.getNote(@token, note_guid)
-      note.title = title
-      note.content = create_note_content(body)
+      note.title = title.force_encoding("UTF-8")
+      note.content = create_note_content(body).force_encoding("UTF-8")
       note.notebookGuid = get_notebook_guid(notebook, false)
 
       begin
