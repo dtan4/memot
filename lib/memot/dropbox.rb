@@ -63,7 +63,7 @@ module Memot
     end
 
     def get_latest_revision(dir)
-      file_exists?(dir, REVISION_FILENAME) ? get_file_body(revision_path(dir)).to_i : 0
+      file_exists?(dir, REVISION_FILENAME) ? get_file_body(revision_path(dir)).strip.to_i : 0
     end
 
     def set_latest_revision(dir, revision)
