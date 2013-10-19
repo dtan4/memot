@@ -28,7 +28,7 @@ module Memot
       note = @note_store.getNote(@token, note_guid)
       note.title = title
       note.content = create_note_content(body)
-      note.notebookGuid = get_notebook_guid(notebook)
+      note.notebookGuid = get_notebook_guid(notebook, false)
 
       begin
         @note_store.updateNote(@token, note)
