@@ -55,12 +55,6 @@ module Memot
       open(filepath, "w+") { |f| f.puts body } unless filepath == ""
     end
 
-    def refresh_revision(revision)
-      @config["revision"] = revision
-      open(MEMO2GIT_CONF, "w+") { |f| f.write @config.to_yaml }
-      puts "latest revision is #{@config["revision"]}"
-    end
-
     def self.auth(app_key, app_secret)
       flow = DropboxOAuth2FlowNoRedirect.new(app_key, app_seccret)
       puts "Access to this URL: #{flow.start}"
