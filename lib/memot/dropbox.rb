@@ -11,6 +11,7 @@ module Memot
 
     def parse_dir_tree(path, notebook, recursive)
       latest_revision = get_latest_revision(path)
+      refreshed_latest_revision = latest_revision
 
       @client.metadata(path)["contents"].each do |cont|
         cont_path = cont["path"]
@@ -21,14 +22,14 @@ module Memot
           #   latest_revision = child_rev if child_rev > latest_revision
           # end
         else
-          if cont["revision"] > @config["revision"]
+          if cont["revision"] > refreshed_latest_revision
             save_to_evernote(path, notebook) if %w{.md .markdown}.include? File.extname(path).downcase
             latest_revision = cont["revision"] if cont["revision"] > latest_revision
           end
         end
       end
 
-      latest_revision
+      set_latest_revision(path, refreshed_latest_revision)
     end
 
     private
