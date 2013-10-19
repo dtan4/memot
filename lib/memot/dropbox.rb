@@ -48,6 +48,9 @@ module Memot
 
     def get_file_body(path)
       @client.get_file(path)
+    rescue DropboxError => e
+      $stderr.puts e.message
+      exit 1
     end
 
     def save_file(path, filepath)
