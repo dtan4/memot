@@ -1,7 +1,7 @@
 require "evernote_oauth"
 
 module Memot
-  class Evernote
+  class EvernoteCli
     def initialize(token, sandbox)
       @token = token
       @client = EvernoteOAuth::Client.new(token: @token, sandbox: sandbox)

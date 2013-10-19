@@ -3,7 +3,7 @@ require "memot/evernote"
 require "memot/markdown"
 
 module Memot
-  class Dropbox
+  class DropboxCli
     def initialize(access_token, evernote)
       @client = DropboxClient.new(access_token)
       @evernote = evernote
