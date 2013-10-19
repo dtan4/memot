@@ -32,6 +32,14 @@ module Memot
       set_latest_revision(path, refreshed_latest_revision)
     end
 
+    def self.auth(app_key, app_secret)
+      flow = DropboxOAuth2FlowNoRedirect.new(app_key, app_seccret)
+      puts "Access to this URL: #{flow.start}"
+      print "PIN code: "
+      code = gets.strip
+      access_token, user_id = flow.finish(code)
+    end
+
     private
 
     def save_to_evernote(path, notebook)
@@ -67,14 +75,6 @@ module Memot
     def save_file(path, filepath)
       body = get_file_body(path)
       open(filepath, "w+") { |f| f.puts body } unless filepath == ""
-    end
-
-    def self.auth(app_key, app_secret)
-      flow = DropboxOAuth2FlowNoRedirect.new(app_key, app_seccret)
-      puts "Access to this URL: #{flow.start}"
-      print "PIN code: "
-      code = gets.strip
-      access_token, user_id = flow.finish(code)
     end
   end
 end
