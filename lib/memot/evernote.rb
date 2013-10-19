@@ -40,15 +40,14 @@ module Memot
       end
     end
 
-    def create_note_content(body)
-      content = <<EOS
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml2.dtd">
-<en-note>
-#{body}
-</en-note>
-EOS
-      content
+    def get_note_guid(title, notebook)
+      notebook_guid = get_notebook_guid(notebook, false)
+      return "" if notebook_guid == ""
+
+      filter = Evernote::EDAM::Type::NoteFilter.new
+      filter.notebookGuid = notebook_guid
+      results = @note_store.findNotesMetadata(@token, filter).select { |nt| nt.title == title }
+      results.length > 0 ? results.first.guid : ""
     end
 
     def create_notebook(name, stack = "")
@@ -66,16 +65,6 @@ EOS
       end
     end
 
-    def get_note_guid(title, notebook)
-      notebook_guid = get_notebook_guid(notebook, false)
-      return "" if notebook_guid == ""
-
-      filter = Evernote::EDAM::Type::NoteFilter.new
-      filter.notebookGuid = notebook_guid
-      results = @note_store.findNotesMetadata(@token, filter).select { |nt| nt.title == title }
-      results.length > 0 ? results.first.guid : ""
-    end
-
     def get_notebook_guid(notebook, create = true)
       results = @note_store.listNotebooks.select { |nb| nb.name == notebook }
 
@@ -84,6 +73,19 @@ EOS
       else
         create ? create_notebook(notebook).guid : ""
       end
+    end
+
+    private
+
+    def create_note_content(body)
+      content = <<EOS
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml2.dtd">
+<en-note>
+#{body}
+</en-note>
+EOS
+      content
     end
   end
 end

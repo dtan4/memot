@@ -35,6 +35,8 @@ module Memot
       latest_revision
     end
 
+    private
+
     def save_to_evernote(path)
       body = Memot::Markdown.parse_markdown(get_file_body(path))
       title = File.basename(path)
