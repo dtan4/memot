@@ -13,15 +13,10 @@ module Memot
       note.title = title.force_encoding("UTF-8")
       note.content = create_note_content(body).force_encoding("UTF-8")
       note.notebookGuid = get_notebook_guid(notebook)
+      @note_store.createNote(@token, note)
 
-      begin
-        @note_store.createNote(@token, note)
-      rescue Evernote::EDAM::Error::EDAMUserException => e
-        parameter = e.parameter
-        errorText = Evernote::EDAM::Error::EDAMErrorCode::VALUE_MAP[e.errorCode]
-        $stderr.puts "Exception raised (parameter: #{parameter} errorText: #{errorText})"
-        exit 1
-      end
+    rescue Evernote::EDAM::Error::EDAMUserException => e
+      show_error_and_exit e
     end
 
     def update_note(title, body, notebook, note_guid)
@@ -29,15 +24,10 @@ module Memot
       note.title = title.force_encoding("UTF-8")
       note.content = create_note_content(body).force_encoding("UTF-8")
       note.notebookGuid = get_notebook_guid(notebook, false)
+      @note_store.updateNote(@token, note)
 
-      begin
-        @note_store.updateNote(@token, note)
-      rescue Evernote::EDAM::Error::EDAMUserException => e
-        parameter = e.parameter
-        errorText = Evernote::EDAM::Error::EDAMErrorCode::VALUE_MAP[e.errorCode]
-        $stderr.puts "Exception raised (parameter: #{parameter} errorText: #{errorText})"
-        exit 1
-      end
+    rescue Evernote::EDAM::Error::EDAMUserException => e
+      show_error_and_exit e
     end
 
     def get_note_guid(title, notebook)
@@ -49,21 +39,19 @@ module Memot
       spec = Evernote::EDAM::NoteStore::NotesMetadataResultSpec.new
       results = @note_store.findNotesMetadata(@token, filter, 0, 10000, spec).notes.select { |nt| nt.title == title }
       results.length > 0 ? results.first.guid : ""
+
+    rescue Evernote::EDAM::Error::EDAMSystemException => e
+      show_error_and_exit e
     end
 
     def create_notebook(name, stack = "")
       notebook = Evernote::EDAM::Type::Notebook.new
       notebook.name = name
       notebook.stack = stack unless stack == ""
+      @note_store.createNotebook(@token, notebook)
 
-      begin
-        @note_store.createNotebook(@token, notebook)
-      rescue Evernote::EDAM::Error::EDAMUserException => e
-        parameter = e.parameter
-        errorText = Evernote::EDAM::Error::EDAMErrorCode::VALUE_MAP[e.errorCode]
-        $stderr.puts "Exception raised (parameter: #{parameter} errorText: #{errorText})"
-        exit 1
-      end
+    rescue Evernote::EDAM::Error::EDAMUserException => e
+      show_error_and_exit e
     end
 
     def get_notebook_guid(notebook, create = true)
@@ -74,6 +62,8 @@ module Memot
       else
         create ? create_notebook(notebook).guid : ""
       end
+    rescue Evernote::EDAM::Error::EDAMSystemException => e
+      show_error_and_exit e
     end
 
     private
@@ -87,6 +77,13 @@ module Memot
 </en-note>
 EOS
       content
+    end
+
+    def show_error_and_exit(e)
+      parameter = e.parameter
+      errorText = Evernote::EDAM::Error::EDAMErrorCode::VALUE_MAP[e.errorCode]
+      $stderr.puts "Exception raised (parameter: #{parameter} errorText: #{errorText})"
+      exit 1
     end
   end
 end
