@@ -13,7 +13,8 @@ module Memot
     end
 
     def parse_dir_tree(path, recursive)
-      latest_revision = @config["revision"]
+      latest_revision = get_latest_revision(path)
+
       @client.metadata(path)["contents"].each do |cont|
         cont_path = cont["path"]
 
@@ -44,6 +45,18 @@ module Memot
       else
         @evernote.update_note(title, body, notebook, note_guid)
       end
+    end
+
+    def revision_path(dir)
+      dir[-1] == "/" ? dir + ".memot.revision" : "/.memot.revision"
+    end
+
+    def get_latest_revision(dir)
+      File.exists?(revision_path(dir)) ? open(revision_path).to_i : 0
+    end
+
+    def set_latest_revision(dir, revision)
+      open(revision_path(dir), "w+") { |f| f.puts revision }
     end
 
     def get_file_body(path)
