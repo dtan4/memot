@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+
+require "memot"
+
+if ARGV.length < 2
+  $stderr.puts "Usage: memot ROOT_PATH PATH"
+  exit 1
+end
+
+root = ARGV[0]
+path = ARGV[1]
+
+dropbox = Memot::Dropbox.new(root)
+dropbox.parse_dir_tree(path, false)
