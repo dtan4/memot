@@ -23,7 +23,7 @@ module Memot
           # end
         else
           if cont["revision"] > refreshed_latest_revision
-            save_to_evernote(path, notebook) if %w{.md .markdown}.include? File.extname(path).downcase
+            save_to_evernote(cont_path, notebook) if %w{.md .markdown}.include? File.extname(cont_path).downcase
             latest_revision = cont["revision"] if cont["revision"] > latest_revision
           end
         end
@@ -54,7 +54,8 @@ module Memot
     end
 
     def revision_path(dir)
-      dir[-1] == "/" ? dir + ".memot.revision" : "/.memot.revision"
+      # Only text-type extensions are allowed. ".memot.revision" is not allowed.
+      dir + (dir[-1] == "/" ? ".memot.revision.yml" : "/.memot.revision.yml")
     end
 
     def get_latest_revision(dir)
@@ -62,7 +63,7 @@ module Memot
     end
 
     def set_latest_revision(dir, revision)
-      open(revision_path(dir), "w+") { |f| f.puts revision }
+      @client.put_file(revision_path(dir), revision, true)
     end
 
     def get_file_body(path)
