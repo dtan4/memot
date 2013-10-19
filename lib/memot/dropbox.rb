@@ -61,7 +61,11 @@ module Memot
     end
 
     def get_latest_revision(dir)
-      File.exists?(revision_path(dir)) ? open(revision_path).to_i : 0
+      if @client.search(dir, ".memot.revision.yml").length > 0
+        get_file_body(revision_path(dir)).to_i
+      else
+        0
+      end
     end
 
     def set_latest_revision(dir, revision)
