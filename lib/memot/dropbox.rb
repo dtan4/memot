@@ -22,9 +22,9 @@ module Memot
           #   latest_revision = child_rev if child_rev > latest_revision
           # end
         else
-          if cont["revision"] > refreshed_latest_revision
+          if cont["revision"] > latest_revision
             save_to_evernote(cont_path, notebook) if %w{.md .markdown}.include? File.extname(cont_path).downcase
-            latest_revision = cont["revision"] if cont["revision"] > latest_revision
+            refreshed_latest_revision = cont["revision"] if cont["revision"] > refreshed_latest_revision
           end
         end
       end
@@ -48,8 +48,10 @@ module Memot
 
       if (note_guid = @evernote.get_note_guid(title, notebook)) == ""
         @evernote.create_note(title, body, notebook)
+        puts "Created: #{notebook}/#{title}"
       else
         @evernote.update_note(title, body, notebook, note_guid)
+        puts "Updated: #{notebook}/#{title}"
       end
     end
 
