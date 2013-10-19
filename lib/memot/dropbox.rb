@@ -3,6 +3,8 @@ require "memot/evernote"
 require "memot/markdown"
 
 module Memot
+  REVISION_FILENAME = ".memot.revision.yml"
+
   class DropboxCli
     def initialize(access_token, evernote)
       @client = DropboxClient.new(access_token)
@@ -57,15 +59,11 @@ module Memot
 
     def revision_path(dir)
       # Only text-type extensions are allowed. ".memot.revision" is not allowed.
-      dir + (dir[-1] == "/" ? ".memot.revision.yml" : "/.memot.revision.yml")
+      File.expand_path(REVISION_FILENAME, dir)
     end
 
     def get_latest_revision(dir)
-      if @client.search(dir, ".memot.revision.yml").length > 0
-        get_file_body(revision_path(dir)).to_i
-      else
-        0
-      end
+      file_exists?(dir, REVISION_FILENAME) ? get_file_body(revision_path(dir)).to_i : 0
     end
 
     def set_latest_revision(dir, revision)
@@ -77,6 +75,10 @@ module Memot
     rescue DropboxError => e
       $stderr.puts e.message
       exit 1
+    end
+
+    def file_exists?(dir, name)
+      @client.search(dir, name).length > 0
     end
 
     def save_file(path, filepath)
