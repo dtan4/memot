@@ -1,30 +1,28 @@
 require "dropbox_sdk"
-require "yaml"
 require "memot/evernote"
 require "memot/markdown"
 
 module Memot
   class Dropbox
-    def initialize(root, access_token, evernote)
+    def initialize(access_token, evernote)
       @client = DropboxClient.new(access_token)
-      @root = root
       @evernote = evernote
     end
 
-    def parse_dir_tree(path, recursive)
+    def parse_dir_tree(path, notebook, recursive)
       latest_revision = get_latest_revision(path)
 
       @client.metadata(path)["contents"].each do |cont|
         cont_path = cont["path"]
 
         if cont["is_dir"]
-          if recursive
-            child_rev = parse_dir_tree(cont_path, recursive)
-            latest_revision = child_rev if child_rev > latest_revision
-          end
+          # if recursive
+          #   child_rev = parse_dir_tree(cont_path, recursive)
+          #   latest_revision = child_rev if child_rev > latest_revision
+          # end
         else
           if cont["revision"] > @config["revision"]
-            save_to_evernote(path) if %w{.md .markdown}.include? File.extname(path).downcase
+            save_to_evernote(path, notebook) if %w{.md .markdown}.include? File.extname(path).downcase
             latest_revision = cont["revision"] if cont["revision"] > latest_revision
           end
         end
@@ -35,10 +33,9 @@ module Memot
 
     private
 
-    def save_to_evernote(path)
+    def save_to_evernote(path, notebook)
       body = Memot::Markdown.parse_markdown(get_file_body(path))
       title = File.basename(path)
-      notebook = File.dirname(path).sub(/^#{root}\/?/, "")
 
       if (note_guid = @evernote.get_note_guid(title, notebook)) == ""
         @evernote.create_note(title, body, notebook)
