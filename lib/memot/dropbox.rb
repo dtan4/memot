@@ -5,8 +5,6 @@ require "memot/markdown"
 
 module Memot
   class Dropbox
-    CONF_PATH = ENV["HOME"] + "/.memot.yml"
-
     def initialize(root, access_token, evernote)
       @client = DropboxClient.new(access_token)
       @root = root
