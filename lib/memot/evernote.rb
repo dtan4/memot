@@ -44,9 +44,10 @@ module Memot
       notebook_guid = get_notebook_guid(notebook, false)
       return "" if notebook_guid == ""
 
-      filter = Evernote::EDAM::Type::NoteFilter.new
+      filter = Evernote::EDAM::NoteStore::NoteFilter.new
       filter.notebookGuid = notebook_guid
-      results = @note_store.findNotesMetadata(@token, filter).select { |nt| nt.title == title }
+      spec = Evernote::EDAM::NoteStore::NotesMetadataResultSpec.new
+      results = @note_store.findNotesMetadata(@token, filter, 0, 10000, spec).notes.select { |nt| nt.title == title }
       results.length > 0 ? results.first.guid : ""
     end
 
