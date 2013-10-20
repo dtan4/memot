@@ -24,8 +24,9 @@ module Memot
           #   latest_revision = child_rev if child_rev > latest_revision
           # end
         else
-          if cont["revision"] > latest_revision
-            save_to_evernote(cont_path, notebook) if %w{.md .markdown}.include? File.extname(cont_path).downcase
+          if (cont["revision"] > latest_revision) &&
+              (%w{.md .markdown}.include? File.extname(cont_path).downcase)
+            save_to_evernote(cont_path, notebook)
             refreshed_latest_revision = cont["revision"] if cont["revision"] > refreshed_latest_revision
           end
         end
