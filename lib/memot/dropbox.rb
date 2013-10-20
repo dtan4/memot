@@ -31,7 +31,7 @@ module Memot
         end
       end
 
-      set_revision(path, refreshed_latest_revision)
+      set_revision(path, refreshed_latest_revision) if refreshed_latest_revision > latest_revision
     end
 
     def self.auth(app_key, app_secret)
@@ -63,7 +63,12 @@ module Memot
     end
 
     def get_revision(dir)
-      file_exists?(dir, REVISION_FILENAME) ? get_file_body(revision_path(dir)).strip.to_i : 0
+      if file_exists?(dir, REVISION_FILENAME)
+        get_file_body(revision_path(dir)).strip.to_i
+      else
+        set_revision(dir, 0)
+        0
+      end
     end
 
     def set_revision(dir, revision)
