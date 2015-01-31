@@ -4,22 +4,13 @@ require "memot"
 
 config_dir = ENV["MEMOT_CONFIG_DIR"] || ENV["HOME"]
 config_path = File.join(config_dir, ".memot.yml")
-
-unless File.exists? config_path
-  $stderr.puts "#{config_path} is not found"
-  exit 1
-end
-
-config = YAML.load_file(config_path)
-auth = config["auth"] || {}
+config = File.exists?(config_path) ? Memot::Config.load_yaml(config_path) : Memot::Config.load_env
 
 if ARGV.shift == "--auth"
-  access_token = Memot::Dropbox.auth(auth["dropbox"]["app_key"], auth["dropbox"]["app_secret"])
+  access_token = Memot::Dropbox.auth(config.auth[:dropbox][:app_key], config.auth[:dropbox][:app_secret])
   puts access_token
   exit 0
 end
-
-notes = config["notes"] || {}
 
 redis_host = ENV["REDIS_PORT_6379_TCP_ADDR"] || "127.0.0.1"
 redis_port = (ENV["REDIS_PORT_6379_TCP_PORT"] || "6379").to_i
@@ -27,8 +18,8 @@ redis_port = (ENV["REDIS_PORT_6379_TCP_PORT"] || "6379").to_i
 redis = Redis.new(host: redis_host, port: redis_port, driver: :hiredis)
 logger = Logger.new($stdout)
 
-dropbox = Memot::Dropbox.new(auth["dropbox"]["access_token"].to_s, redis)
-evernote = Memot::Evernote.new(auth["evernote"]["token"], auth["evernote"]["sandbox"])
+dropbox = Memot::Dropbox.new(config.auth[:dropbox][:access_token].to_s, redis)
+evernote = Memot::Evernote.new(config.auth[:evernote][:token], config.auth[:evernote][:sandbox])
 cli = Memot::Client.new(dropbox, evernote, logger)
 
-cli.update(notes)
+cli.update(config.notes)
