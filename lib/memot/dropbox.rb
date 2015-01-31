@@ -2,10 +2,9 @@ require "dropbox_sdk"
 
 module Memot
   class DropboxCli
-    def initialize(access_token, redis, logger)
+    def initialize(access_token, redis)
       @client = DropboxClient.new(access_token)
       @redis = redis
-      @logger = logger
     end
 
     def parse_dir_tree!(path)
@@ -33,9 +32,6 @@ module Memot
 
     def file_body_of(path)
       @client.get_file(path)
-    rescue DropboxError => e
-      @logger.error e.message
-      exit 1
     end
 
     def self.auth(app_key, app_secret)
