@@ -18,7 +18,7 @@ module Memot
           },
           evernote: {
             token: ENV["MEMOT_EVERNOTE_TOKEN"],
-            sandbox: ENV["MEMOT_EVERNOTE_SANDBOX"],
+            sandbox: ENV["MEMOT_EVERNOTE_SANDBOX"].downcase == "true",
           },
         }
 
