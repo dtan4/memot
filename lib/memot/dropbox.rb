@@ -23,14 +23,14 @@ module Memot
 
       need_update = []
 
-      client.metadata(path)["contents"].each do |cont|
+      client.metadata(path)["contents"].sort_by { |cont| cont["revision"] }.each do |cont|
         cont_path = cont["path"]
         cont_revision = cont["revision"]
 
         unless cont["is_dir"]
           if (cont_revision > latest_revision) && markdown?(cont_path)
             need_update << { dropbox_path: cont_path, revision: cont_revision }
-            updated_revision = cont_revision if cont_revision > updated_revision
+            updated_revision = cont_revision
           end
         end
       end
