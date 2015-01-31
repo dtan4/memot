@@ -13,13 +13,21 @@ end
 
 config = YAML.load_file(config_path)
 auth = config["auth"] || {}
+
+if ARGV.shift == "--auth"
+  access_token = Memot::DropboxCli.auth(auth["dropbox"]["app_key"], auth["dropbox"]["app_secret"])
+  puts access_token
+  exit 0
+end
+
 notes = config["notes"] || {}
+
 redis_host = ENV["REDIS_PORT_6379_TCP_ADDR"] || "127.0.0.1"
 redis_port = (ENV["REDIS_PORT_6379_TCP_PORT"] || "6379").to_i
 
 redis = Redis.new(host: redis_host, port: redis_port, driver: :hiredis)
 
 evernote = Memot::EvernoteCli.new(auth["evernote"]["token"], auth["evernote"]["sandbox"])
-dropbox = Memot::DropboxCli.new(auth["dropbox"]["access_token"], evernote, redis)
+dropbox = Memot::DropboxCli.new(auth["dropbox"]["access_token"].to_s, evernote, redis)
 
 notes.each_pair { |name, path| dropbox.parse_dir_tree(path, name) }

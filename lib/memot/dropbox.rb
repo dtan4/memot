@@ -35,11 +35,11 @@ module Memot
     end
 
     def self.auth(app_key, app_secret)
-      flow = DropboxOAuth2FlowNoRedirect.new(app_key, app_seccret)
+      flow = DropboxOAuth2FlowNoRedirect.new(app_key, app_secret)
       puts "Access to this URL: #{flow.start}"
       print "PIN code: "
       code = gets.strip
-      access_token, user_id = flow.finish(code)
+      flow.finish(code)
     end
 
     private
