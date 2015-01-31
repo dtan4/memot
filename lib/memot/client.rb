@@ -10,13 +10,12 @@ module Memot
       need_update = []
 
       notes.each_pair do |notebook, dropbox_path|
-        need_update << dropbox.parse_dir_tree!(dropbox_path, notebook)
+        need_update << { notebook: notebook, updates: dropbox.parse_dir_tree!(dropbox_path) }
       end
 
-      need_update.flatten!
-
       need_update.each do |update|
-        save_to_evernote(update[:dropbox_path], update[:notebook], update[:revision])
+        notebook = update[:notebook]
+        update[:updates].each { |u| save_to_evernote(u[:dropbox_path], notebook, u[:revision]) }
       end
     end
 

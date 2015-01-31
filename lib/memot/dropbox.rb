@@ -8,7 +8,7 @@ module Memot
       @logger = logger
     end
 
-    def parse_dir_tree!(path, notebook)
+    def parse_dir_tree!(path)
       latest_revision = get_revision(path)
       updated_revision = latest_revision
 
@@ -20,7 +20,7 @@ module Memot
         unless cont["is_dir"]
           if (cont["revision"] > latest_revision) &&
               (%w{.md .markdown}.include? File.extname(cont_path).downcase)
-            need_update << { dropbox_path: cont_path, notebook: notebook, revision: cont["revision"] }
+            need_update << { dropbox_path: cont_path, revision: cont["revision"] }
             updated_revision = cont["revision"] if cont["revision"] > updated_revision
           end
         end
