@@ -1,12 +1,13 @@
 require "evernote_oauth"
 
 module Memot
+  class EvernoteError < StandardError; end
+
   class EvernoteCli
-    def initialize(token, sandbox, logger)
+    def initialize(token, sandbox)
       @token = token
       @client = EvernoteOAuth::Client.new(token: @token, sandbox: sandbox)
       @note_store = @client.note_store
-      @logger = logger
     end
 
     def create_note(title, body, notebook)
@@ -17,7 +18,7 @@ module Memot
       @note_store.createNote(@token, note)
 
     rescue Evernote::EDAM::Error::EDAMUserException => e
-      show_error_and_exit e
+      raise_error e
     end
 
     def update_note(title, body, notebook, note_guid)
@@ -28,7 +29,7 @@ module Memot
       @note_store.updateNote(@token, note)
 
     rescue Evernote::EDAM::Error::EDAMUserException => e
-      show_error_and_exit e
+      raise_error e
     end
 
     def get_note_guid(title, notebook)
@@ -43,7 +44,7 @@ module Memot
       results.length > 0 ? results.first.guid : ""
 
     rescue Evernote::EDAM::Error::EDAMSystemException => e
-      show_error_and_exit e
+      raise_error e
     end
 
     def create_notebook(name, stack = "")
@@ -53,7 +54,7 @@ module Memot
       @note_store.createNotebook(@token, notebook)
 
     rescue Evernote::EDAM::Error::EDAMUserException => e
-      show_error_and_exit e
+      raise_error e
     end
 
     def get_notebook_guid(notebook, create = true)
@@ -65,7 +66,7 @@ module Memot
         create ? create_notebook(notebook).guid : ""
       end
     rescue Evernote::EDAM::Error::EDAMSystemException => e
-      show_error_and_exit e
+      raise_error e
     end
 
     private
@@ -81,11 +82,10 @@ EOS
       content
     end
 
-    def show_error_and_exit(e)
+    def raise_error(e)
       parameter = e.parameter
       errorText = Evernote::EDAM::Error::EDAMErrorCode::VALUE_MAP[e.errorCode]
-      @logger.error "Exception raised (parameter: #{parameter} errorText: #{errorText})"
-      exit 1
+      raise EvernoteError, "Exception raised (parameter: #{parameter} errorText: #{errorText})"
     end
   end
 end
