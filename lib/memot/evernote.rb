@@ -94,9 +94,8 @@ EOS
     end
 
     def raise_error(e)
-      parameter = e.parameter
-      errorText = ::Evernote::EDAM::Error::EDAMErrorCode::VALUE_MAP[e.errorCode]
-      raise ::EvernoteError, "Exception raised (parameter: #{parameter} errorText: #{errorText})"
+      error_text = ::Evernote::EDAM::Error::EDAMErrorCode::VALUE_MAP[e.errorCode]
+      raise EvernoteError, "Exception raised (errorText: #{error_text})"
     end
   end
 end
