@@ -6,8 +6,7 @@ module Memot
   class EvernoteCli
     def initialize(token, sandbox)
       @token = token
-      @client = EvernoteOAuth::Client.new(token: @token, sandbox: sandbox)
-      @note_store = @client.note_store
+      @client = EvernoteOAuth::Client.new(token: token, sandbox: sandbox)
     end
 
     def create_note(title, body, notebook)
@@ -15,18 +14,18 @@ module Memot
       note.title = title.force_encoding("UTF-8")
       note.content = create_note_content(body).force_encoding("UTF-8")
       note.notebookGuid = get_notebook_guid(notebook)
-      @note_store.createNote(@token, note)
+      note_store.createNote(token, note)
 
     rescue Evernote::EDAM::Error::EDAMUserException => e
       raise_error e
     end
 
     def update_note(title, body, notebook, note_guid)
-      note = @note_store.getNote(@token, note_guid, true, true, true, true)
+      note = note_store.getNote(token, note_guid, true, true, true, true)
       note.title = title.force_encoding("UTF-8")
       note.content = create_note_content(body).force_encoding("UTF-8")
       note.notebookGuid = get_notebook_guid(notebook, false)
-      @note_store.updateNote(@token, note)
+      note_store.updateNote(token, note)
 
     rescue Evernote::EDAM::Error::EDAMUserException => e
       raise_error e
@@ -40,7 +39,7 @@ module Memot
       filter.notebookGuid = notebook_guid
       spec = Evernote::EDAM::NoteStore::NotesMetadataResultSpec.new
       spec.includeTitle = true
-      results = @note_store.findNotesMetadata(@token, filter, 0, 10000, spec).notes.select { |nt| nt.title == title }
+      results = note_store.findNotesMetadata(token, filter, 0, 10000, spec).notes.select { |nt| nt.title == title }
       results.length > 0 ? results.first.guid : ""
 
     rescue Evernote::EDAM::Error::EDAMSystemException => e
@@ -51,14 +50,14 @@ module Memot
       notebook = Evernote::EDAM::Type::Notebook.new
       notebook.name = name
       notebook.stack = stack unless stack == ""
-      @note_store.createNotebook(@token, notebook)
+      note_store.createNotebook(token, notebook)
 
     rescue Evernote::EDAM::Error::EDAMUserException => e
       raise_error e
     end
 
     def get_notebook_guid(notebook, create = true)
-      results = @note_store.listNotebooks.select { |nb| nb.name == notebook }
+      results = note_store.listNotebooks.select { |nb| nb.name == notebook }
 
       if results.length > 0
         results.first.guid
@@ -70,6 +69,18 @@ module Memot
     end
 
     private
+
+    def client
+      @client
+    end
+
+    def note_store
+      @note_store ||= client.note_store
+    end
+
+    def token
+      @token
+    end
 
     def create_note_content(body)
       content = <<EOS
