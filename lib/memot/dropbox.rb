@@ -50,7 +50,7 @@ module Memot
     end
 
     def save_to_evernote(path, notebook, revision)
-      body = Memot::Markdown.parse_markdown(get_file_body(path))
+      body = Memot::Markdown.parse_markdown(file_body_of(path))
       title = File.basename(path)
 
       if (note_guid = @evernote.get_note_guid(title, notebook)) == ""
@@ -78,7 +78,7 @@ module Memot
       @redis.set(key, revision)
     end
 
-    def get_file_body(path)
+    def file_body_of(path)
       @client.get_file(path)
     rescue DropboxError => e
       $stderr.puts e.message
@@ -90,7 +90,7 @@ module Memot
     end
 
     def save_file(path, filepath)
-      body = get_file_body(path)
+      body = file_body_of(path)
       open(filepath, "w+") { |f| f.puts body } unless filepath == ""
     end
   end
