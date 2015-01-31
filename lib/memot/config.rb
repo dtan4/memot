@@ -27,7 +27,7 @@ module Memot
           # daily:/memo/daily,reading:/memo/reading
           #   -> { daily: "/memo/daily", reading: "/memo/reading" }
           #
-          notes = ENV["MEMOT_NOTES"].split(",").each { |pair| pair.split(":") }.inject({}) do |nts, kv|
+          notes = ENV["MEMOT_NOTES"].split(",").map { |pair| pair.split(":") }.inject({}) do |nts, kv|
             nts[kv[0]] = kv[1]
             nts
           end
