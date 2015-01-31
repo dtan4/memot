@@ -11,7 +11,7 @@ module Memot
       @logger = logger
     end
 
-    def parse_dir_tree(path, notebook, recursive = false)
+    def parse_dir_tree!(path, notebook, recursive = false)
       latest_revision = get_revision(path)
       updated_revision = latest_revision
 
@@ -20,7 +20,7 @@ module Memot
 
         if cont["is_dir"]
           # if recursive
-          #   child_rev = parse_dir_tree(cont_path, recursive)
+          #   child_rev = parse_dir_tree!(cont_path, recursive)
           #   latest_revision = child_rev if child_rev > latest_revision
           # end
         else

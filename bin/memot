@@ -31,4 +31,4 @@ logger = Logger.new($stdout)
 evernote = Memot::EvernoteCli.new(auth["evernote"]["token"], auth["evernote"]["sandbox"], logger)
 dropbox = Memot::DropboxCli.new(auth["dropbox"]["access_token"].to_s, evernote, redis, logger)
 
-notes.each_pair { |name, path| dropbox.parse_dir_tree(path, name) }
+notes.each_pair { |name, path| dropbox.parse_dir_tree!(path, name) }
