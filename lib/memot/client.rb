@@ -23,12 +23,20 @@ module Memot
       note_body = Memot::Markdown.parse_markdown(dropbox.file_body_of(dropbox_path))
       note_title = File.basename(dropbox_path)
 
-      if (note_guid = evernote.get_note_guid(note_title, notebook)) == ""
-        evernote.create_note(note_title, note_body, notebook)
-        logger.info "Created: #{notebook}/#{note_title} (rev. #{revision})"
-      else
-        evernote.update_note(note_title, note_body, notebook, note_guid)
-        logger.info "Updated: #{notebook}/#{note_title} (rev. #{revision})"
+      begin
+        if (note_guid = evernote.get_note_guid(note_title, notebook)) == ""
+          evernote.create_note(note_title, note_body, notebook).is_a? Hash
+          logger.info "Created: #{notebook}/#{note_title} (rev. #{revision})"
+        else
+          evernote.update_note(note_title, note_body, notebook, note_guid).is_a? Hash
+          logger.info "Updated: #{notebook}/#{note_title} (rev. #{revision})"
+        end
+
+      rescue Memot::EvernoteLimitReachedError => e
+        sleep_interval = e.message.to_i + 60
+        logger.warn "Evernote rate limit exceeded, retry after #{sleep_interval} seconds."
+        sleep sleep_interval
+        retry
       end
     end
 

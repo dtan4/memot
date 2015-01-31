@@ -2,6 +2,7 @@ require "evernote_oauth"
 
 module Memot
   class EvernoteError < StandardError; end
+  class EvernoteLimitReachedError < StandardError; end
 
   class Evernote
     def initialize(token, sandbox)
@@ -94,6 +95,8 @@ EOS
     end
 
     def raise_error(e)
+      raise EvernoteLimitReachedError, e.rateLimitDuration if e.errorCode == ::Evernote::EDAM::Error::EDAMErrorCode::LIMIT_REACHED
+
       error_text = ::Evernote::EDAM::Error::EDAMErrorCode::VALUE_MAP[e.errorCode]
       raise EvernoteError, "Exception raised (errorText: #{error_text})"
     end
