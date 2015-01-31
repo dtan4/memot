@@ -73,14 +73,5 @@ module Memot
       key = dir_key_of(dir)
       redis.set(key, revision)
     end
-
-    def file_exists?(dir, name)
-      client.search(dir, name).length > 0
-    end
-
-    def save_file(path, filepath)
-      body = file_body_of(path)
-      open(filepath, "w+") { |f| f.puts body } unless filepath == ""
-    end
   end
 end
