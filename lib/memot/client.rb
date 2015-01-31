@@ -25,10 +25,10 @@ module Memot
 
       begin
         if (note_guid = evernote.get_note_guid(note_title, notebook)) == ""
-          evernote.create_note(note_title, note_body, notebook).is_a? Hash
+          evernote.create_note(note_title, note_body, notebook)
           logger.info "Created: #{notebook}/#{note_title} (rev. #{revision})"
         else
-          evernote.update_note(note_title, note_body, notebook, note_guid).is_a? Hash
+          evernote.update_note(note_title, note_body, notebook, note_guid)
           logger.info "Updated: #{notebook}/#{note_title} (rev. #{revision})"
         end
 
