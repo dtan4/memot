@@ -38,6 +38,11 @@ if @options[:interval] < 1
   exit 0
 end
 
+trap("INT") do
+  puts "\rExiting..."
+  exit 0
+end
+
 loop do
   logger.info("===== Sync start  =====")
   cli.update(config.notes)
