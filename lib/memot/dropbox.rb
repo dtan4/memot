@@ -2,9 +2,19 @@ require "dropbox_sdk"
 
 module Memot
   class DropboxCli
+    class << self
+      def auth(app_key, app_secret)
+        flow = DropboxOAuth2FlowNoRedirect.new(app_key, app_secret)
+        puts "Access to this URL: #{flow.start}"
+        print "PIN code: "
+        code = gets.strip
+        flow.finish(code)
+      end
+    end
+
     def initialize(access_token, redis)
-      @client = DropboxClient.new(access_token)
-      @redis = redis
+      client = DropboxClient.new(access_token)
+      redis = redis
     end
 
     def parse_dir_tree!(path)
@@ -13,7 +23,7 @@ module Memot
 
       need_update = []
 
-      @client.metadata(path)["contents"].each do |cont|
+      client.metadata(path)["contents"].each do |cont|
         cont_path = cont["path"]
 
         unless cont["is_dir"]
@@ -31,18 +41,18 @@ module Memot
     end
 
     def file_body_of(path)
-      @client.get_file(path)
-    end
-
-    def self.auth(app_key, app_secret)
-      flow = DropboxOAuth2FlowNoRedirect.new(app_key, app_secret)
-      puts "Access to this URL: #{flow.start}"
-      print "PIN code: "
-      code = gets.strip
-      flow.finish(code)
+      client.get_file(path)
     end
 
     private
+
+    def client
+      @client
+    end
+
+    def redis
+      @redis
+    end
 
     def dir_key_of(dir)
       "memot:#{dir}"
@@ -51,8 +61,8 @@ module Memot
     def get_revision(dir)
       key = dir_key_of(dir)
 
-      if @redis.exists(key)
-        @redis.get(key).to_i
+      if redis.exists(key)
+        redis.get(key).to_i
       else
         set_revision(key, 0)
         0
@@ -61,11 +71,11 @@ module Memot
 
     def set_revision(dir, revision)
       key = dir_key_of(dir)
-      @redis.set(key, revision)
+      redis.set(key, revision)
     end
 
     def file_exists?(dir, name)
-      @client.search(dir, name).length > 0
+      client.search(dir, name).length > 0
     end
 
     def save_file(path, filepath)
