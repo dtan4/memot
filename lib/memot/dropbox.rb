@@ -44,6 +44,10 @@ module Memot
 
     private
 
+    def dir_key_of(dir)
+      "memot:#{dir}"
+    end
+
     def save_to_evernote(path, notebook)
       body = Memot::Markdown.parse_markdown(get_file_body(path))
       title = File.basename(path)
@@ -58,16 +62,19 @@ module Memot
     end
 
     def get_revision(dir)
-      if @redis.exists(dir)
-        @redis.get(dir).to_i
+      key = dir_key_of(dir)
+
+      if @redis.exists(key)
+        @redis.get(key).to_i
       else
-        set_revision(dir, 0)
+        set_revision(key, 0)
         0
       end
     end
 
     def set_revision(dir, revision)
-      @redis.set(dir, revision)
+      key = dir_key_of(dir)
+      @redis.set(key, revision)
     end
 
     def get_file_body(path)
