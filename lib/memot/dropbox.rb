@@ -1,7 +1,7 @@
 require "dropbox_sdk"
 
 module Memot
-  class DropboxCli
+  class Dropbox
     class << self
       def auth(app_key, app_secret)
         flow = DropboxOAuth2FlowNoRedirect.new(app_key, app_secret)

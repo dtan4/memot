@@ -3,20 +3,20 @@ require "evernote_oauth"
 module Memot
   class EvernoteError < StandardError; end
 
-  class EvernoteCli
+  class Evernote
     def initialize(token, sandbox)
       @token = token
       @client = EvernoteOAuth::Client.new(token: token, sandbox: sandbox)
     end
 
     def create_note(title, body, notebook)
-      note = Evernote::EDAM::Type::Note.new
+      note = ::Evernote::EDAM::Type::Note.new
       note.title = title.force_encoding("UTF-8")
       note.content = create_note_content(body).force_encoding("UTF-8")
       note.notebookGuid = get_notebook_guid(notebook)
       note_store.createNote(token, note)
 
-    rescue Evernote::EDAM::Error::EDAMUserException => e
+    rescue ::Evernote::EDAM::Error::EDAMUserException => e
       raise_error e
     end
 
@@ -27,7 +27,7 @@ module Memot
       note.notebookGuid = get_notebook_guid(notebook, false)
       note_store.updateNote(token, note)
 
-    rescue Evernote::EDAM::Error::EDAMUserException => e
+    rescue ::Evernote::EDAM::Error::EDAMUserException => e
       raise_error e
     end
 
@@ -35,24 +35,24 @@ module Memot
       notebook_guid = get_notebook_guid(notebook, false)
       return "" if notebook_guid == ""
 
-      filter = Evernote::EDAM::NoteStore::NoteFilter.new
+      filter = ::Evernote::EDAM::NoteStore::NoteFilter.new
       filter.notebookGuid = notebook_guid
-      spec = Evernote::EDAM::NoteStore::NotesMetadataResultSpec.new
+      spec = ::Evernote::EDAM::NoteStore::NotesMetadataResultSpec.new
       spec.includeTitle = true
       results = note_store.findNotesMetadata(token, filter, 0, 10000, spec).notes.select { |nt| nt.title == title }
       results.length > 0 ? results.first.guid : ""
 
-    rescue Evernote::EDAM::Error::EDAMSystemException => e
+    rescue ::Evernote::EDAM::Error::EDAMSystemException => e
       raise_error e
     end
 
     def create_notebook(name, stack = "")
-      notebook = Evernote::EDAM::Type::Notebook.new
+      notebook = ::Evernote::EDAM::Type::Notebook.new
       notebook.name = name
       notebook.stack = stack unless stack == ""
       note_store.createNotebook(token, notebook)
 
-    rescue Evernote::EDAM::Error::EDAMUserException => e
+    rescue ::Evernote::EDAM::Error::EDAMUserException => e
       raise_error e
     end
 
@@ -64,7 +64,7 @@ module Memot
       else
         create ? create_notebook(notebook).guid : ""
       end
-    rescue Evernote::EDAM::Error::EDAMSystemException => e
+    rescue ::Evernote::EDAM::Error::EDAMSystemException => e
       raise_error e
     end
 
@@ -95,8 +95,8 @@ EOS
 
     def raise_error(e)
       parameter = e.parameter
-      errorText = Evernote::EDAM::Error::EDAMErrorCode::VALUE_MAP[e.errorCode]
-      raise EvernoteError, "Exception raised (parameter: #{parameter} errorText: #{errorText})"
+      errorText = ::Evernote::EDAM::Error::EDAMErrorCode::VALUE_MAP[e.errorCode]
+      raise ::EvernoteError, "Exception raised (parameter: #{parameter} errorText: #{errorText})"
     end
   end
 end
