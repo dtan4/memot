@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
 require "memot"
-require "yaml"
 
 config_dir = ENV["MEMOT_CONFIG_DIR"] || ENV["HOME"]
 config_path = File.join(config_dir, ".memot.yml")
