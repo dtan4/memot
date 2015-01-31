@@ -13,8 +13,8 @@ module Memot
     end
 
     def initialize(access_token, redis)
-      client = DropboxClient.new(access_token)
-      redis = redis
+      @client = DropboxClient.new(access_token)
+      @redis = redis
     end
 
     def parse_dir_tree!(path)
