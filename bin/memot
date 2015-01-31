@@ -3,7 +3,7 @@
 require "memot"
 require "yaml"
 
-CONF_PATH = ENV["HOME"] + "/.memot.yml"
+CONF_PATH = File.expand_path("~/.memot.yml")
 
 unless File.exists? CONF_PATH
   $stderr.puts "#{CONF_PATH} is not found"
