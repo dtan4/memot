@@ -3,12 +3,11 @@ require "memot/evernote"
 require "memot/markdown"
 
 module Memot
-  REVISION_FILENAME = ".memot.revision.yml"
-
   class DropboxCli
-    def initialize(access_token, evernote)
+    def initialize(access_token, evernote, redis)
       @client = DropboxClient.new(access_token)
       @evernote = evernote
+      @redis = redis
     end
 
     def parse_dir_tree(path, notebook, recursive = false)
@@ -58,14 +57,9 @@ module Memot
       end
     end
 
-    def revision_path(dir)
-      # Only text-type extensions are allowed. ".memot.revision" is not allowed.
-      File.expand_path(REVISION_FILENAME, dir)
-    end
-
     def get_revision(dir)
-      if file_exists?(dir, REVISION_FILENAME)
-        get_file_body(revision_path(dir)).strip.to_i
+      if @redis.exists(dir)
+        @redis.get(dir).to_i
       else
         set_revision(dir, 0)
         0
@@ -73,7 +67,7 @@ module Memot
     end
 
     def set_revision(dir, revision)
-      @client.put_file(revision_path(dir), revision, true)
+      @redis.set(dir, revision)
     end
 
     def get_file_body(path)
