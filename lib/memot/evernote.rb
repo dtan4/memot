@@ -17,7 +17,7 @@ module Memot
       note.notebookGuid = get_notebook_guid(notebook)
       note_store.createNote(token, note)
 
-    rescue ::Evernote::EDAM::Error::EDAMUserException => e
+    rescue ::Evernote::EDAM::Error::EDAMUserException, ::Evernote::EDAM::Error::EDAMSystemException => e
       raise_error e
     end
 
@@ -28,7 +28,7 @@ module Memot
       note.notebookGuid = get_notebook_guid(notebook, false)
       note_store.updateNote(token, note)
 
-    rescue ::Evernote::EDAM::Error::EDAMUserException => e
+    rescue ::Evernote::EDAM::Error::EDAMUserException, ::Evernote::EDAM::Error::EDAMSystemException => e
       raise_error e
     end
 
@@ -53,7 +53,7 @@ module Memot
       notebook.stack = stack unless stack == ""
       note_store.createNotebook(token, notebook)
 
-    rescue ::Evernote::EDAM::Error::EDAMUserException => e
+    rescue ::Evernote::EDAM::Error::EDAMUserException, ::Evernote::EDAM::Error::EDAMSystemException => e
       raise_error e
     end
 
