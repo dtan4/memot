@@ -28,6 +28,7 @@ redis_port = (ENV["REDIS_PORT_6379_TCP_PORT"] || "6379").to_i
 
 redis = Redis.new(host: redis_host, port: redis_port, driver: :hiredis)
 logger = Logger.new($stdout)
+$stdout.sync = true
 
 dropbox = Memot::Dropbox.new(config.auth[:dropbox][:access_token].to_s, redis)
 evernote = Memot::Evernote.new(config.auth[:evernote][:token], config.auth[:evernote][:sandbox])
