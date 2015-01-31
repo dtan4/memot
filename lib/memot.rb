@@ -1,3 +1,5 @@
+require "redis"
+
 require "memot/version"
 require "memot/dropbox"
 require "memot/evernote"

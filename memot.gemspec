@@ -21,6 +21,10 @@ Gem::Specification.new do |spec|
   spec.add_dependency "dropbox-sdk"
   spec.add_dependency "evernote_oauth"
   spec.add_dependency "redcarpet"
+
+  spec.add_dependency "redis"
+  spec.add_dependency "hiredis"
+
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec"

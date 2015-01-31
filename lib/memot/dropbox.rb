@@ -3,12 +3,11 @@ require "memot/evernote"
 require "memot/markdown"
 
 module Memot
-  REVISION_FILENAME = ".memot.revision.yml"
-
   class DropboxCli
-    def initialize(access_token, evernote)
+    def initialize(access_token, evernote, redis)
       @client = DropboxClient.new(access_token)
       @evernote = evernote
+      @redis = redis
     end
 
     def parse_dir_tree(path, notebook, recursive = false)
@@ -36,14 +35,18 @@ module Memot
     end
 
     def self.auth(app_key, app_secret)
-      flow = DropboxOAuth2FlowNoRedirect.new(app_key, app_seccret)
+      flow = DropboxOAuth2FlowNoRedirect.new(app_key, app_secret)
       puts "Access to this URL: #{flow.start}"
       print "PIN code: "
       code = gets.strip
-      access_token, user_id = flow.finish(code)
+      flow.finish(code)
     end
 
     private
+
+    def dir_key_of(dir)
+      "memot:#{dir}"
+    end
 
     def save_to_evernote(path, notebook)
       body = Memot::Markdown.parse_markdown(get_file_body(path))
@@ -58,22 +61,20 @@ module Memot
       end
     end
 
-    def revision_path(dir)
-      # Only text-type extensions are allowed. ".memot.revision" is not allowed.
-      File.expand_path(REVISION_FILENAME, dir)
-    end
-
     def get_revision(dir)
-      if file_exists?(dir, REVISION_FILENAME)
-        get_file_body(revision_path(dir)).strip.to_i
+      key = dir_key_of(dir)
+
+      if @redis.exists(key)
+        @redis.get(key).to_i
       else
-        set_revision(dir, 0)
+        set_revision(key, 0)
         0
       end
     end
 
     def set_revision(dir, revision)
-      @client.put_file(revision_path(dir), revision, true)
+      key = dir_key_of(dir)
+      @redis.set(key, revision)
     end
 
     def get_file_body(path)
