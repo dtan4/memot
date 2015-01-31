@@ -14,7 +14,7 @@ module Memot
       end
 
       need_update.each do |update|
-        notebook = update[:notebook]
+        notebook = update[:notebook].to_s
         update[:updates].each { |u| save_to_evernote(u[:dropbox_path], notebook, u[:revision]) }
       end
     end
