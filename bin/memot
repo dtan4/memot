@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
 require "memot"
-require "yaml"
 
 config_dir = ENV["MEMOT_CONFIG_DIR"] || ENV["HOME"]
 config_path = File.join(config_dir, ".memot.yml")
@@ -28,7 +27,8 @@ redis_port = (ENV["REDIS_PORT_6379_TCP_PORT"] || "6379").to_i
 redis = Redis.new(host: redis_host, port: redis_port, driver: :hiredis)
 logger = Logger.new($stdout)
 
-evernote = Memot::EvernoteCli.new(auth["evernote"]["token"], auth["evernote"]["sandbox"], logger)
-dropbox = Memot::DropboxCli.new(auth["dropbox"]["access_token"].to_s, evernote, redis, logger)
+dropbox = Memot::DropboxCli.new(auth["dropbox"]["access_token"].to_s, redis)
+evernote = Memot::EvernoteCli.new(auth["evernote"]["token"], auth["evernote"]["sandbox"])
+cli = Memot::Client.new(dropbox, evernote, logger)
 
-notes.each_pair { |name, path| dropbox.parse_dir_tree(path, name) }
+cli.update(notes)
