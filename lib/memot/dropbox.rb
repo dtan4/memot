@@ -27,8 +27,7 @@ module Memot
         cont_path = cont["path"]
 
         unless cont["is_dir"]
-          if (cont["revision"] > latest_revision) &&
-              (%w{.md .markdown}.include? File.extname(cont_path).downcase)
+          if (cont["revision"] > latest_revision) && markdown?(cont_path)
             need_update << { dropbox_path: cont_path, revision: cont["revision"] }
             updated_revision = cont["revision"] if cont["revision"] > updated_revision
           end
@@ -52,6 +51,10 @@ module Memot
 
     def redis
       @redis
+    end
+
+    def markdown?(path)
+      %w{.md .markdown}.include?(File.extname(path).downcase)
     end
 
     def dir_key_of(dir)
