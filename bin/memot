@@ -1,12 +1,23 @@
 #!/usr/bin/env ruby
 
 require "memot"
+require "optparse"
 
 config_dir = ENV["MEMOT_CONFIG_DIR"] || ENV["HOME"]
 config_path = File.join(config_dir, ".memot.yml")
 config = File.exists?(config_path) ? Memot::Config.load_yaml(config_path) : Memot::Config.load_env
 
-if ARGV.shift == "--auth"
+@options = {
+  auth: false,
+  interval: 0,
+}
+
+OptionParser.new do |opts|
+  opts.on("--auth", "Authenticate Dropbox") { |val| @options[:auth] = true }
+  opts.on("-i", "--interval=INTERVAL", "Sync interval") { |val| @options[:interval] = val.to_i }
+end.parse!(ARGV)
+
+if @options[:auth]
   access_token = Memot::Dropbox.auth(config.auth[:dropbox][:app_key], config.auth[:dropbox][:app_secret])
   puts access_token
   exit 0
@@ -22,4 +33,21 @@ dropbox = Memot::Dropbox.new(config.auth[:dropbox][:access_token].to_s, redis)
 evernote = Memot::Evernote.new(config.auth[:evernote][:token], config.auth[:evernote][:sandbox])
 cli = Memot::Client.new(dropbox, evernote, logger)
 
-cli.update(config.notes)
+if @options[:interval] < 1
+  cli.update(config.notes)
+  exit 0
+end
+
+trap("INT") do
+  puts "\rExiting..."
+  exit 0
+end
+
+loop do
+  logger.info("===== Sync start  =====")
+  cli.update(config.notes)
+  logger.info("===== Sync finish =====")
+
+  interval = @options[:interval] * 60 - Time.now.subsec + 0.001
+  sleep(interval) if interval > 0
+end
