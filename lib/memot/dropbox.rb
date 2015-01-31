@@ -11,19 +11,14 @@ module Memot
       @logger = logger
     end
 
-    def parse_dir_tree!(path, notebook, recursive = false)
+    def parse_dir_tree!(path, notebook)
       latest_revision = get_revision(path)
       updated_revision = latest_revision
 
       @client.metadata(path)["contents"].each do |cont|
         cont_path = cont["path"]
 
-        if cont["is_dir"]
-          # if recursive
-          #   child_rev = parse_dir_tree!(cont_path, recursive)
-          #   latest_revision = child_rev if child_rev > latest_revision
-          # end
-        else
+        unless cont["is_dir"]
           if (cont["revision"] > latest_revision) &&
               (%w{.md .markdown}.include? File.extname(cont_path).downcase)
             save_to_evernote(cont_path, notebook, cont["revision"])
