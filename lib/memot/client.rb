@@ -32,7 +32,7 @@ module Memot
           logger.info "Updated: #{notebook}/#{note_title} (rev. #{revision})"
         end
 
-      rescue Memot::EvernoteLimitReachedError => e
+      rescue Memot::EvernoteRateLimitReachedError => e
         sleep_interval = e.message.to_i + 60
         logger.warn "Evernote rate limit exceeded, retry after #{sleep_interval} seconds."
         sleep sleep_interval
