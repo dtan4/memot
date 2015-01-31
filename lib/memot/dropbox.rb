@@ -4,10 +4,11 @@ require "memot/markdown"
 
 module Memot
   class DropboxCli
-    def initialize(access_token, evernote, redis)
+    def initialize(access_token, evernote, redis, logger)
       @client = DropboxClient.new(access_token)
       @evernote = evernote
       @redis = redis
+      @logger = logger
     end
 
     def parse_dir_tree(path, notebook, recursive = false)
@@ -25,7 +26,7 @@ module Memot
         else
           if (cont["revision"] > latest_revision) &&
               (%w{.md .markdown}.include? File.extname(cont_path).downcase)
-            save_to_evernote(cont_path, notebook)
+            save_to_evernote(cont_path, notebook, cont["revision"])
             updated_revision = cont["revision"] if cont["revision"] > updated_revision
           end
         end
@@ -48,16 +49,16 @@ module Memot
       "memot:#{dir}"
     end
 
-    def save_to_evernote(path, notebook)
+    def save_to_evernote(path, notebook, revision)
       body = Memot::Markdown.parse_markdown(get_file_body(path))
       title = File.basename(path)
 
       if (note_guid = @evernote.get_note_guid(title, notebook)) == ""
         @evernote.create_note(title, body, notebook)
-        puts "Created: #{notebook}/#{title}"
+        @logger.info "Created: #{notebook}/#{title} (rev. #{revision})"
       else
         @evernote.update_note(title, body, notebook, note_guid)
-        puts "Updated: #{notebook}/#{title}"
+        @logger.info "Updated: #{notebook}/#{title} (rev. #{revision})"
       end
     end
 

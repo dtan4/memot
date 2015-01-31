@@ -2,10 +2,11 @@ require "evernote_oauth"
 
 module Memot
   class EvernoteCli
-    def initialize(token, sandbox)
+    def initialize(token, sandbox, logger)
       @token = token
       @client = EvernoteOAuth::Client.new(token: @token, sandbox: sandbox)
       @note_store = @client.note_store
+      @logger = logger
     end
 
     def create_note(title, body, notebook)
@@ -83,7 +84,7 @@ EOS
     def show_error_and_exit(e)
       parameter = e.parameter
       errorText = Evernote::EDAM::Error::EDAMErrorCode::VALUE_MAP[e.errorCode]
-      $stderr.puts "Exception raised (parameter: #{parameter} errorText: #{errorText})"
+      @logger.error "Exception raised (parameter: #{parameter} errorText: #{errorText})"
       exit 1
     end
   end
