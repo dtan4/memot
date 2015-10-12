@@ -23,8 +23,8 @@ if @options[:auth]
   exit 0
 end
 
-redis_host = ENV["REDIS_PORT_6379_TCP_ADDR"] || "127.0.0.1"
-redis_port = (ENV["REDIS_PORT_6379_TCP_PORT"] || "6379").to_i
+redis_host = ENV["REDIS_HOST"] || ENV["REDIS_PORT_6379_TCP_ADDR"] || "127.0.0.1"
+redis_port = (ENV["REDIS_PORT"] || ENV["REDIS_PORT_6379_TCP_PORT"] || "6379").to_i
 
 redis = Redis.new(host: redis_host, port: redis_port, driver: :hiredis)
 logger = Logger.new($stdout)
