@@ -35,9 +35,12 @@ evernote = Memot::Evernote.new(config.auth[:evernote][:token], config.auth[:ever
 cli = Memot::Client.new(dropbox, evernote, logger)
 
 if @options[:interval] < 1
+  # One-time execution
   cli.update(config.notes)
   exit 0
 end
+
+# Continuous execution
 
 trap("INT") do
   puts "\rExiting..."
@@ -45,9 +48,7 @@ trap("INT") do
 end
 
 loop do
-  logger.info("===== Sync start  =====")
   cli.update(config.notes)
-  logger.info("===== Sync finish =====")
 
   interval = @options[:interval] * 60 - Time.now.subsec + 0.001
   sleep(interval) if interval > 0

@@ -7,6 +7,8 @@ module Memot
     end
 
     def update(notes)
+      logger.info("Updating...")
+
       need_update = []
 
       notes.each_pair do |notebook, dropbox_path|
@@ -17,6 +19,8 @@ module Memot
         notebook = update[:notebook].to_s
         update[:updates].each { |u| save_to_evernote(u[:dropbox_path], notebook, u[:revision]) }
       end
+
+      logger.info("Finish")
     end
 
     def save_to_evernote(dropbox_path, notebook, revision)
