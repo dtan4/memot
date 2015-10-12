@@ -1,5 +1,7 @@
 # Memot
 
+[![Gem Version](https://badge.fury.io/rb/memot.svg)](https://badge.fury.io/rb/memot)
+
 Synchronize Evernote and Markdown in Dropbox
 
 (TODO: Add image)
